@@ -26,7 +26,7 @@ mysql -u <zabbix_db_user> -p -h 127.0.0.1 <name_of_zabbix_database> < ad_groups.
 ```
 
 2) Now there are two ways to start using new php code:
-2.1) Copy all these files into respective destinations of your current Zabbix server 4.2.5 installation
+2.1) Copy all these files into respective destinations of your current Zabbix server **v4.4.0** installation
 ```
 frontends/php/adusergrps.php
 frontends/php/include/audit.inc.php
