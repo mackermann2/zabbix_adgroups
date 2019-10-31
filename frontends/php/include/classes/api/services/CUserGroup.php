@@ -58,7 +58,7 @@ class CUserGroup extends CApiService {
 		$defOptions = [
 			'usrgrpids'					=> null,
 			'userids'					=> null,
-			'adusrgrpids'					=> null,
+			'adusrgrpids'               => null,
 			'status'					=> null,
 			'with_gui_access'			=> null,
 			// filter
@@ -116,11 +116,11 @@ class CUserGroup extends CApiService {
 		// adusrgrpids
 		if (!is_null($options['adusrgrpids'])) {
 			zbx_value2array($options['adusrgrpids']);
-
 			$sqlParts['from']['adgroups_groups'] = 'adgroups_groups agug';
 			$sqlParts['where'][] = dbConditionInt('agug.adusrgrpid', $options['adusrgrpids']);
 			$sqlParts['where']['adgug'] = 'g.usrgrpid=agug.usrgrpid';
 		}
+
 
 		// status
 		if (!is_null($options['status'])) {

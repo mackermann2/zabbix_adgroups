@@ -394,13 +394,13 @@ class API {
 	public static function UserGroup() {
 		return self::getApi('usergroup');
 	}
-
-	/**
-	 * @return CAdUserGroup
-	 */
-	public static function AdUserGroup() {
-		return self::getApi('adusergroup');
-	}
+  
+    /**
+    * @return CAdUserGroup
+    */
+    public static function AdUserGroup() {
+        return self::getApi('adusergroup');
+    }
 
 	/**
 	 * @return CUserMacro

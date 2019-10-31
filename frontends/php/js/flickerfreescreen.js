@@ -74,6 +74,16 @@
 			}
 		},
 
+		remove: function(screen) {
+			if (typeof screen.id !== 'undefined' && typeof this.screens[screen.id] !== 'undefined') {
+				if (typeof this.screens[screen.id].timeoutHandler !== 'undefined') {
+					window.clearTimeout(this.screens[screen.id].timeoutHandler);
+				}
+
+				delete this.screens[screen.id];
+			}
+		},
+
 		refresh: function(id) {
 			var screen = this.screens[id];
 
@@ -192,10 +202,8 @@
 					self.refreshImg(id);
 					break;
 
-				// SCREEN_RESOURCE_SCREEN
 				// SCREEN_RESOURCE_LLD_SIMPLE_GRAPH
 				// SCREEN_RESOURCE_LLD_GRAPH
-				case 8:
 				case 20:
 				case 19:
 					self.refreshProfile(id, ajax_url);

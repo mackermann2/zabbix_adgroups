@@ -223,7 +223,6 @@ elseif (hasRequest('add') || hasRequest('update')) {
 
 		$messageSuccess = _('Action updated');
 		$messageFailed = _('Cannot update action');
-		$auditAction = AUDIT_ACTION_UPDATE;
 	}
 	else {
 		$action['eventsource'] = $eventsource;
@@ -232,11 +231,9 @@ elseif (hasRequest('add') || hasRequest('update')) {
 
 		$messageSuccess = _('Action added');
 		$messageFailed = _('Cannot add action');
-		$auditAction = AUDIT_ACTION_ADD;
 	}
 
 	if ($result) {
-		add_audit($auditAction, AUDIT_RESOURCE_ACTION, _('Name').NAME_DELIMITER.$action['name']);
 		unset($_REQUEST['form']);
 	}
 
@@ -502,9 +499,6 @@ elseif (hasRequest('action') && str_in_array(getRequest('action'), ['action.mass
 			? _n('Action enabled', 'Actions enabled', $actions_count)
 			: _n('Action disabled', 'Actions disabled', $actions_count);
 
-		add_audit(AUDIT_ACTION_UPDATE, AUDIT_RESOURCE_ACTION, ' Actions ['.implode(',', $result['actionids']).'] '.
-			($status == ACTION_STATUS_ENABLED ? 'enabled' : 'disabled')
-		);
 		show_messages(true, $message);
 		uncheckTableRows();
 	}
@@ -756,8 +750,8 @@ if (hasRequest('form')) {
 		$data['new_recovery_operation'] = ['operationtype' => OPERATION_TYPE_MESSAGE];
 	}
 
-	$data['available_mediatypes'] = API::MediaType()->get(['output' => ['mediatypeid', 'description']]);
-	order_result($data['available_mediatypes'], 'description');
+	$data['available_mediatypes'] = API::MediaType()->get(['output' => ['mediatypeid', 'name']]);
+	order_result($data['available_mediatypes'], 'name');
 
 	if ($data['new_ack_operation'] && !is_array($data['new_ack_operation'])) {
 		$data['new_ack_operation'] = [

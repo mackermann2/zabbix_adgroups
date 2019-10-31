@@ -42,20 +42,20 @@ class CLdapAuthValidator extends CValidator {
 	 *
 	 * @param array $value
 	 *
-	 * @return false if fails. Array with AD info about user if succeeds.
+	 * @return bool
 	 */
 	public function validate($value) {
 		$status = false;
 
 		$ldap = new CLdap($this->conf);
 
-		$user_info = $ldap->checkPass($value['user'], $value['password']);
+		$status = $ldap->checkPass($value['user'], $value['password']);
 
-		if (!$user_info) {
+		if (!$status) {
 			$this->setError($ldap->error);
 		}
 
-		return $user_info;
+		return $status;
 	}
 
 	/**

@@ -26,7 +26,9 @@ require_once dirname(__FILE__).'/include/forms.inc.php';
 
 $page['title'] = _('Configuration of item prototypes');
 $page['file'] = 'disc_prototypes.php';
-$page['scripts'] = ['effects.js', 'class.cviewswitcher.js', 'multilineinput.js', 'multiselect.js', 'items.js'];
+$page['scripts'] = ['effects.js', 'class.cviewswitcher.js', 'multilineinput.js', 'multiselect.js', 'items.js',
+	'textareaflexible.js'
+];
 
 require_once dirname(__FILE__).'/include/page_header.php';
 
@@ -254,13 +256,16 @@ $fields = [
 										null
 									],
 	'http_authtype' =>				[T_ZBX_INT, O_OPT, null,
-										IN([HTTPTEST_AUTH_NONE, HTTPTEST_AUTH_BASIC, HTTPTEST_AUTH_NTLM]),
+										IN([HTTPTEST_AUTH_NONE, HTTPTEST_AUTH_BASIC, HTTPTEST_AUTH_NTLM,
+											HTTPTEST_AUTH_KERBEROS
+										]),
 										null
 									],
 	'http_username' =>				[T_ZBX_STR, O_OPT, null,	null,
 										'(isset({add}) || isset({update})) && isset({http_authtype})'.
 											' && ({http_authtype} == '.HTTPTEST_AUTH_BASIC.
 												' || {http_authtype} == '.HTTPTEST_AUTH_NTLM.
+												' || {http_authtype} == '.HTTPTEST_AUTH_KERBEROS.
 											')',
 										_('Username')
 									],
@@ -268,6 +273,7 @@ $fields = [
 										'(isset({add}) || isset({update})) && isset({http_authtype})'.
 											' && ({http_authtype} == '.HTTPTEST_AUTH_BASIC.
 												' || {http_authtype} == '.HTTPTEST_AUTH_NTLM.
+												' || {http_authtype} == '.HTTPTEST_AUTH_KERBEROS.
 											')',
 										_('Password')
 									],
@@ -493,6 +499,14 @@ elseif (hasRequest('add') || hasRequest('update')) {
 
 				case ZBX_PREPROC_REGSUB:
 				case ZBX_PREPROC_ERROR_FIELD_REGEX:
+					$step['params'] = implode("\n", $step['params']);
+					break;
+
+				// ZBX-16642
+				case ZBX_PREPROC_CSV_TO_JSON:
+					if (!array_key_exists(2, $step['params'])) {
+						$step['params'][2] = ZBX_PREPROC_CSV_NO_HEADER;
+					}
 					$step['params'] = implode("\n", $step['params']);
 					break;
 
@@ -969,6 +983,14 @@ elseif ($valid_input && hasRequest('massupdate') && hasRequest('group_itemid')) 
 
 							case ZBX_PREPROC_REGSUB:
 							case ZBX_PREPROC_ERROR_FIELD_REGEX:
+								$step['params'] = implode("\n", $step['params']);
+								break;
+
+							// ZBX-16642
+							case ZBX_PREPROC_CSV_TO_JSON:
+								if (!array_key_exists(2, $step['params'])) {
+									$step['params'][2] = ZBX_PREPROC_CSV_NO_HEADER;
+								}
 								$step['params'] = implode("\n", $step['params']);
 								break;
 

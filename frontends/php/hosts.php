@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/include/forms.inc.php';
 $page['title'] = _('Configuration of hosts');
 $page['file'] = 'hosts.php';
 $page['type'] = detect_page_type(PAGE_TYPE_HTML);
-$page['scripts'] = ['multiselect.js'];
+$page['scripts'] = ['multiselect.js', 'textareaflexible.js'];
 
 require_once dirname(__FILE__).'/include/page_header.php';
 
@@ -250,7 +250,8 @@ $macros = cleanInheritedMacros(getRequest('macros', []));
 
 // remove empty new macro lines
 foreach ($macros as $idx => $macro) {
-	if (!array_key_exists('hostmacroid', $macro) && $macro['macro'] === '' && $macro['value'] === '') {
+	if (!array_key_exists('hostmacroid', $macro) && $macro['macro'] === '' && $macro['value'] === ''
+			&& $macro['description'] === '') {
 		unset($macros[$idx]);
 	}
 }
@@ -1016,8 +1017,9 @@ elseif (hasRequest('form')) {
 				],
 				'selectGroups' => ['groupid'],
 				'selectParentTemplates' => ['templateid'],
-				'selectMacros' => ['hostmacroid', 'macro', 'value'],
+				'selectMacros' => ['hostmacroid', 'macro', 'value', 'description'],
 				'selectDiscoveryRule' => ['itemid', 'name'],
+				'selectHostDiscovery' => ['parent_hostid'],
 				'selectInventory' => true,
 				'selectTags' => ['tag', 'value'],
 				'hostids' => [$data['hostid']]
@@ -1027,6 +1029,7 @@ elseif (hasRequest('form')) {
 			$data['flags'] = $dbHost['flags'];
 			if ($data['flags'] == ZBX_FLAG_DISCOVERY_CREATED) {
 				$data['discoveryRule'] = $dbHost['discoveryRule'];
+				$data['hostDiscovery'] = $dbHost['hostDiscovery'];
 			}
 
 			// Host
@@ -1115,6 +1118,7 @@ elseif (hasRequest('form')) {
 				'output' => ['flags'],
 				'selectParentTemplates' => ['templateid'],
 				'selectDiscoveryRule' => ['itemid', 'name'],
+				'selectHostDiscovery' => ['parent_hostid'],
 				'hostids' => [$data['hostid']]
 			]);
 			$dbHost = reset($dbHosts);
@@ -1122,6 +1126,7 @@ elseif (hasRequest('form')) {
 			$data['flags'] = $dbHost['flags'];
 			if ($data['flags'] == ZBX_FLAG_DISCOVERY_CREATED) {
 				$data['discoveryRule'] = $dbHost['discoveryRule'];
+				$data['hostDiscovery'] = $dbHost['hostDiscovery'];
 			}
 
 			$templateids = zbx_objectValues($dbHost['parentTemplates'], 'templateid');
@@ -1190,7 +1195,7 @@ elseif (hasRequest('form')) {
 	$data['macros'] = array_values(order_macros($data['macros'], 'macro'));
 
 	if (!$data['macros'] && $data['flags'] != ZBX_FLAG_DISCOVERY_CREATED) {
-		$macro = ['macro' => '', 'value' => ''];
+		$macro = ['macro' => '', 'value' => '', 'description' => ''];
 		if ($data['show_inherited_macros']) {
 			$macro['type'] = ZBX_PROPERTY_OWN;
 		}

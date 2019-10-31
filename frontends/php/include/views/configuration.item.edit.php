@@ -55,7 +55,10 @@ if ($data['limited'] || $discovered_item) {
 
 if ($discovered_item) {
 	$form_list->addRow(_('Discovered by'), new CLink($data['item']['discoveryRule']['name'],
-		'disc_prototypes.php?parent_discoveryid='.$data['item']['discoveryRule']['itemid']
+		(new CUrl('disc_prototypes.php'))
+			->setArgument('form', 'update')
+			->setArgument('parent_discoveryid', $data['item']['discoveryRule']['itemid'])
+			->setArgument('itemid', $data['item']['itemDiscovery']['parent_itemid'])
 	));
 }
 
@@ -157,11 +160,11 @@ $form_list
 					(new CCol((new CDiv)->addClass(ZBX_STYLE_DRAG_ICON)))->addClass(ZBX_STYLE_TD_DRAG_ICON),
 					(new CTextBox('query_fields[name][#{index}]', '#{name}', $readonly))
 						->setAttribute('placeholder', _('name'))
-						->setWidth(ZBX_TEXTAREA_TAG_WIDTH),
+						->setWidth(ZBX_TEXTAREA_HTTP_PAIR_NAME_WIDTH),
 					'&rArr;',
 					(new CTextBox('query_fields[value][#{index}]', '#{value}', $readonly))
 						->setAttribute('placeholder', _('value'))
-						->setWidth(ZBX_TEXTAREA_TAG_WIDTH),
+						->setWidth(ZBX_TEXTAREA_HTTP_PAIR_VALUE_WIDTH),
 					(new CButton(null, _('Remove')))
 						->addClass(ZBX_STYLE_BTN_LINK)
 						->setEnabled(!$readonly)
@@ -249,11 +252,11 @@ $form_list
 					(new CCol((new CDiv)->addClass(ZBX_STYLE_DRAG_ICON)))->addClass(ZBX_STYLE_TD_DRAG_ICON),
 					(new CTextBox('headers[name][#{index}]', '#{name}', $readonly))
 						->setAttribute('placeholder', _('name'))
-						->setWidth(ZBX_TEXTAREA_TAG_WIDTH),
+						->setWidth(ZBX_TEXTAREA_HTTP_PAIR_NAME_WIDTH),
 					'&rArr;',
-					(new CTextBox('headers[value][#{index}]', '#{value}', $readonly, 1000))
+					(new CTextBox('headers[value][#{index}]', '#{value}', $readonly, 2000))
 						->setAttribute('placeholder', _('value'))
-						->setWidth(ZBX_TEXTAREA_TAG_WIDTH),
+						->setWidth(ZBX_TEXTAREA_HTTP_PAIR_VALUE_WIDTH),
 					(new CButton(null, _('Remove')))
 						->addClass(ZBX_STYLE_BTN_LINK)
 						->setEnabled(!$readonly)
@@ -317,7 +320,8 @@ $form_list
 			(new CComboBox($readonly ? '' : 'http_authtype', $data['http_authtype'], null, [
 				HTTPTEST_AUTH_NONE => _('None'),
 				HTTPTEST_AUTH_BASIC => _('Basic'),
-				HTTPTEST_AUTH_NTLM => _('NTLM')
+				HTTPTEST_AUTH_NTLM => _('NTLM'),
+				HTTPTEST_AUTH_KERBEROS => _('Kerberos')
 			]))->setEnabled(!$readonly)
 		],
 		'http_authtype_row'
@@ -626,6 +630,7 @@ $form_list
 	->addRow(
 		(new CLabel(_('Executed script'), 'params_es'))->setAsteriskMark(),
 		(new CTextArea('params_es', $data['params']))
+			->addClass(ZBX_STYLE_MONOSPACE_FONT)
 			->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 			->setAriaRequired()
 			->setReadonly($discovered_item),
@@ -634,6 +639,7 @@ $form_list
 	->addRow(
 		(new CLabel(_('SQL query'), 'params_ap'))->setAsteriskMark(),
 		(new CTextArea('params_ap', $data['params']))
+			->addClass(ZBX_STYLE_MONOSPACE_FONT)
 			->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 			->setAriaRequired()
 			->setReadonly($discovered_item),
@@ -642,6 +648,7 @@ $form_list
 	->addRow(
 		(new CLabel(_('Formula'), 'params_f'))->setAsteriskMark(),
 		(new CTextArea('params_f', $data['params'], $discovered_item))
+			->addClass(ZBX_STYLE_MONOSPACE_FONT)
 			->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 			->setAriaRequired()
 			->setReadonly($discovered_item),

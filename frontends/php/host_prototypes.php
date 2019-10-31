@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/include/forms.inc.php';
 
 $page['title'] = _('Configuration of host prototypes');
 $page['file'] = 'host_prototypes.php';
-$page['scripts'] = ['effects.js', 'class.cviewswitcher.js', 'multiselect.js'];
+$page['scripts'] = ['effects.js', 'class.cviewswitcher.js', 'multiselect.js', 'textareaflexible.js'];
 
 require_once dirname(__FILE__).'/include/page_header.php';
 
@@ -304,7 +304,7 @@ if (hasRequest('form')) {
 		'output' => API_OUTPUT_EXTEND,
 		'selectGroups' => ['groupid', 'name'],
 		'selectInterfaces' => API_OUTPUT_EXTEND,
-		'selectMacros' => ['macro', 'value'],
+		'selectMacros' => ['macro', 'value', 'description'],
 		'hostids' => $discoveryRule['hostid'],
 		'templated_hosts' => true
 	]);

@@ -362,7 +362,7 @@ switch ($data['new_condition']['conditiontype']) {
 
 	case CONDITION_TYPE_EVENT_TAG_VALUE:
 		$condition = (new CTextBox('new_condition[value]', ''))
-			->setWidth(ZBX_TEXTAREA_TAG_WIDTH)
+			->setWidth(ZBX_TEXTAREA_TAG_VALUE_WIDTH)
 			->setAttribute('placeholder', _('value'));
 
 		$condition2 = (new CTextBox('new_condition[value2]', ''))
@@ -766,12 +766,14 @@ if (!empty($data['new_operation'])) {
 			$mediaTypeComboBox = (new CComboBox('new_operation[opmessage][mediatypeid]', $data['new_operation']['opmessage']['mediatypeid']))
 				->addItem(0, '- '._('All').' -');
 
-			$dbMediaTypes = DBfetchArray(DBselect('SELECT mt.mediatypeid,mt.description FROM media_type mt'));
+			$db_mediatypes = API::MediaType()->get([
+				'output' => ['name'],
+				'preservekeys' => true
+			]);
+			order_result($db_mediatypes, 'name');
 
-			order_result($dbMediaTypes, 'description');
-
-			foreach ($dbMediaTypes as $dbMediaType) {
-				$mediaTypeComboBox->addItem($dbMediaType['mediatypeid'], $dbMediaType['description']);
+			foreach ($db_mediatypes as $mediatypeid => $db_mediatype) {
+				$mediaTypeComboBox->addItem($mediatypeid, $db_mediatype['name']);
 			}
 
 			$new_operation_formlist
@@ -996,12 +998,14 @@ if (!empty($data['new_operation'])) {
 				->addRow(
 					(new CLabel(_('Commands'), 'new_operation[opcommand][command]'))->setAsteriskMark(),
 					(new CTextArea('new_operation[opcommand][command]', $data['new_operation']['opcommand']['command']))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setAriaRequired()
 				)
 				->addRow(
 					(new CLabel(_('Commands'), 'new_operation[opcommand][command]'))->setAsteriskMark(),
 					(new CTextBox('new_operation[opcommand][command]', $data['new_operation']['opcommand']['command']))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setId('new_operation_opcommand_command_ipmi')
 						->setAriaRequired()
@@ -1518,12 +1522,14 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS || $data['eventsource'] == EVE
 					$data['new_recovery_operation']['opmessage']['mediatypeid'])
 				)->addItem(0, '- '._('All').' -');
 
-				$dbMediaTypes = DBfetchArray(DBselect('SELECT mt.mediatypeid,mt.description FROM media_type mt'));
+				$db_mediatypes = API::MediaType()->get([
+					'output' => ['name'],
+					'preservekeys' => true
+				]);
+				order_result($db_mediatypes, 'name');
 
-				order_result($dbMediaTypes, 'description');
-
-				foreach ($dbMediaTypes as $dbMediaType) {
-					$mediaTypeComboBox->addItem($dbMediaType['mediatypeid'], $dbMediaType['description']);
+				foreach ($db_mediatypes as $mediatypeid => $db_mediatype) {
+					$mediaTypeComboBox->addItem($mediatypeid, $db_mediatype['name']);
 				}
 
 				$new_operation_formlist
@@ -1782,6 +1788,7 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS || $data['eventsource'] == EVE
 					(new CTextArea('new_recovery_operation[opcommand][command]',
 						$data['new_recovery_operation']['opcommand']['command']
 					))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setAriaRequired()
 				);
@@ -1790,6 +1797,7 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS || $data['eventsource'] == EVE
 					(new CTextBox('new_recovery_operation[opcommand][command]',
 						$data['new_recovery_operation']['opcommand']['command']
 					))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setId('new_recovery_operation_opcommand_command_ipmi')
 						->setAriaRequired()
@@ -2239,6 +2247,7 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS) {
 					(new CTextArea('new_ack_operation[opcommand][command]',
 						$data['new_ack_operation']['opcommand']['command']
 					))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setAriaRequired()
 				)
@@ -2247,6 +2256,7 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS) {
 					(new CTextBox('new_ack_operation[opcommand][command]',
 						$data['new_ack_operation']['opcommand']['command']
 					))
+						->addClass(ZBX_STYLE_MONOSPACE_FONT)
 						->setWidth(ZBX_TEXTAREA_STANDARD_WIDTH)
 						->setId('new_ack_operation_opcommand_command_ipmi')
 						->setAriaRequired()
@@ -2283,7 +2293,7 @@ if ($data['eventsource'] == EVENT_SOURCE_TRIGGERS) {
 			)->addItem(0, '- '._('All').' -');
 
 			foreach ($data['available_mediatypes'] as $mediatype) {
-				$mediatype_cbox->addItem($mediatype['mediatypeid'], $mediatype['description']);
+				$mediatype_cbox->addItem($mediatype['mediatypeid'], $mediatype['name']);
 			}
 			$is_default_msg = (array_key_exists('default_msg', $data['new_ack_operation']['opmessage'])
 				&& $data['new_ack_operation']['opmessage']['default_msg'] == 1);

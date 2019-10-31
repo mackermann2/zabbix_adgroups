@@ -196,6 +196,7 @@ $triggers_table = (new CTableInfo())->setHeader([
 	$data['show_value_column'] ? _('Value') : null,
 	$data['single_selected_hostid'] == 0 ? _('Host') : null,
 	make_sorting_header(_('Name'), 'description', $data['sort'], $data['sortorder'], $url),
+	_('Operational data'),
 	_('Expression'),
 	make_sorting_header(_('Status'), 'status', $data['sort'], $data['sortorder'], $url),
 	$data['show_info_column'] ? _('Info') : null,
@@ -221,7 +222,8 @@ foreach ($data['triggers'] as $tnum => $trigger) {
 	if ($trigger['discoveryRule']) {
 		$description[] = (new CLink(
 			CHtml::encode($trigger['discoveryRule']['name']),
-			'trigger_prototypes.php?parent_discoveryid='.$trigger['discoveryRule']['itemid']))
+			(new CUrl('trigger_prototypes.php'))->setArgument('parent_discoveryid', $trigger['discoveryRule']['itemid'])
+		))
 			->addClass(ZBX_STYLE_LINK_ALT)
 			->addClass(ZBX_STYLE_ORANGE);
 		$description[] = NAME_DELIMITER;
@@ -313,6 +315,7 @@ foreach ($data['triggers'] as $tnum => $trigger) {
 		$data['show_value_column'] ? $trigger_value : null,
 		$hosts,
 		$description,
+		$trigger['opdata'],
 		$expression,
 		$status,
 		$data['show_info_column'] ? makeInformationList($info_icons) : null,

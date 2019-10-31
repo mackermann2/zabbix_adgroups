@@ -156,15 +156,16 @@ function getSeverityColor($severity, $value = TRIGGER_VALUE_TRUE) {
 /**
  * Returns HTML representation of trigger severity cell containing severity name and color.
  *
- * @param int         $severity     Trigger, Event or Problem severity.
- * @param array|null  $config       Array of configuration parameters to get trigger severity name; can be omitted
- *                                  if $text is not null.
- * @param string|null $text         Trigger severity name.
- * @param bool        $force_normal True to return 'normal' class, false to return corresponding severity class.
+ * @param int         $severity       Trigger, Event or Problem severity.
+ * @param array|null  $config         Array of configuration parameters to get trigger severity name; can be omitted
+ *                                    if $text is not null.
+ * @param string|null $text           Trigger severity name.
+ * @param bool        $force_normal   True to return 'normal' class, false to return corresponding severity class.
+ * @param bool        $return_as_div  True to return severity cell as DIV element.
  *
- * @return CCol
+ * @return CDiv|CCol
  */
-function getSeverityCell($severity, array $config = null, $text = null, $force_normal = false) {
+function getSeverityCell($severity, array $config = null, $text = null, $force_normal = false, $return_as_div = false) {
 	if ($text === null) {
 		$text = CHtml::encode(getSeverityName($severity, $config));
 	}
@@ -173,7 +174,8 @@ function getSeverityCell($severity, array $config = null, $text = null, $force_n
 		return new CCol($text);
 	}
 
-	return (new CCol($text))->addClass(getSeverityStyle($severity));
+	$return = $return_as_div ? new CDiv($text) : new CCol($text);
+	return $return->addClass(getSeverityStyle($severity));
 }
 
 /**
@@ -330,7 +332,7 @@ function utf8RawUrlDecode($source) {
 function copyTriggersToHosts($src_triggerids, $dst_hostids, $src_hostid = null) {
 	$options = [
 		'output' => ['triggerid', 'expression', 'description', 'url', 'status', 'priority', 'comments', 'type',
-			'recovery_mode', 'recovery_expression', 'correlation_mode', 'correlation_tag', 'manual_close'
+			'recovery_mode', 'recovery_expression', 'correlation_mode', 'correlation_tag', 'manual_close', 'opdata'
 		],
 		'selectDependencies' => ['triggerid'],
 		'selectTags' => ['tag', 'value'],
@@ -406,6 +408,7 @@ function copyTriggersToHosts($src_triggerids, $dst_hostids, $src_hostid = null) 
 			// The dependencies must be added after all triggers are created.
 			$result = API::Trigger()->create([[
 				'description' => $srcTrigger['description'],
+				'opdata' => $srcTrigger['opdata'],
 				'expression' => $srcTrigger['expression'],
 				'url' => $srcTrigger['url'],
 				'status' => $srcTrigger['status'],
@@ -729,11 +732,14 @@ function getTriggersOverviewData(array $groupids, $application, $style, array $h
 function getTriggersWithActualSeverity(array $trigger_options, array $problem_options) {
 	$problem_options += [
 		'min_severity' => TRIGGER_SEVERITY_NOT_CLASSIFIED,
+		'show_suppressed' => null,
+		'show_recent' => null,
 		'time_from' => null,
 		'acknowledged' => null
 	];
 
 	$triggers = API::Trigger()->get($trigger_options);
+	CArrayHelper::sort($triggers, ['description']);
 
 	$problem_triggerids = [];
 
@@ -751,17 +757,16 @@ function getTriggersWithActualSeverity(array $trigger_options, array $problem_op
 			'output' => ['eventid', 'acknowledged', 'objectid', 'severity'],
 			'objectids' => $problem_triggerids,
 			'suppressed' => ($problem_options['show_suppressed'] == ZBX_PROBLEM_SUPPRESSED_FALSE) ? false : null,
-			'recent' => array_key_exists('show_recent', $problem_options) ? $problem_options['show_recent'] : null,
-			'acknowledged' => (array_key_exists('acknowledged', $problem_options) && $problem_options['acknowledged'])
-				? false
-				: null,
-			'time_from' => $problem_options['time_from']
+			'recent' => $problem_options['show_recent'],
+			'acknowledged' => $problem_options['acknowledged'],
+			'time_from' => $problem_options['time_from'],
+			'sortfield' => 'eventid'
 		]);
 
 		$objectids = [];
 
 		foreach ($problems as $problem) {
-			if ($triggers[$problem['objectid']]['priority'] < $problem['severity']) {
+			if ($triggers[$problem['objectid']]['priority'] <= $problem['severity']) {
 				$triggers[$problem['objectid']]['priority'] = $problem['severity'];
 				$triggers[$problem['objectid']]['problem']['eventid'] = $problem['eventid'];
 				$triggers[$problem['objectid']]['problem']['acknowledged'] = $problem['acknowledged'];
@@ -1174,10 +1179,11 @@ function get_triggers_unacknowledged($db_element, $count_problems = null, $ack =
  * Make trigger info block.
  *
  * @param array $trigger  Trigger described in info block.
+ * @param array $eventid  Associated eventid.
  *
  * @return object
  */
-function make_trigger_details($trigger) {
+function make_trigger_details($trigger, $eventid) {
 	$hostNames = [];
 
 	$config = select_config();
@@ -1207,7 +1213,7 @@ function make_trigger_details($trigger) {
 		->addRow([
 			new CCol(_('Trigger')),
 			new CCol((new CLinkAction(CMacrosResolverHelper::resolveTriggerName($trigger)))
-				->setMenuPopup(CMenuPopupHelper::getTrigger($trigger['triggerid']))
+				->setMenuPopup(CMenuPopupHelper::getTrigger($trigger['triggerid'], $eventid))
 			)
 		])
 		->addRow([
@@ -2332,7 +2338,7 @@ function makeTriggersHostsList(array $triggers_hosts) {
 			}
 
 			if ($trigger_hosts) {
-				$trigger_hosts[] = ', ';
+				$trigger_hosts[] = (new CSpan(','))->addClass('separator');
 			}
 			$trigger_hosts[] = $host_name;
 		}

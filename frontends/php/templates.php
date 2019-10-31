@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/include/ident.inc.php';
 $page['type'] = detect_page_type(PAGE_TYPE_HTML);
 $page['title'] = _('Configuration of templates');
 $page['file'] = 'templates.php';
-$page['scripts'] = ['multiselect.js'];
+$page['scripts'] = ['multiselect.js', 'textareaflexible.js'];
 
 require_once dirname(__FILE__).'/include/page_header.php';
 
@@ -135,7 +135,8 @@ if (hasRequest('macros')) {
 
 	// remove empty new macro lines
 	foreach ($_REQUEST['macros'] as $idx => $macro) {
-		if (!array_key_exists('hostmacroid', $macro) && $macro['macro'] === '' && $macro['value'] === '') {
+		if (!array_key_exists('hostmacroid', $macro) && $macro['macro'] === '' && $macro['value'] === ''
+				&& $macro['description'] === '') {
 			unset($_REQUEST['macros'][$idx]);
 		}
 	}
