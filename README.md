@@ -1,11 +1,11 @@
-This repository contains necessary changes to Zabbix Server v4.2.5 to implement users authentication against Active Directory (LDAP) based on their AD group membership. You can see all the diffs here so probably will be able to apply to other Zabbix Server versions too.
+This repository contains necessary changes to Zabbix Server **v4.4.0** to implement users authentication against Active Directory (LDAP) based on their AD group membership. You can see all the diffs here so probably will be able to apply to other Zabbix Server versions too.
  
 * Implemented logic
 1) LDAP authentication is selected as 'Default authentication' at Administration->Authentication.
 2) Zabbix Administrator creates mappings 'AD group' to 'Zabbix User Group(s)' at Administration->AD Groups. For every AD group a 'User type' is defined (User/Admin/Super Admin).
 In my case I see membership information as an array of records with format 'CN=<cn_name>,OU=<ouX>,OU=<ouY>...etc'. We use only CN field to map groups.
 3) If a user logs in and it does exist in internal Zabbix database (Administration->Users) then no change in behaviour - it is authenticated against LDAP server.
-3) If a user logs in and does not exist in internal Zabbix dataase (Administration->Users) then:
+3) If a user logs in and does not exist in internal Zabbix database (Administration->Users) then:
 3.1) Zabbix performs authentication against LDAP server (password verification).
 3.2) Zabbix pulls the user's AD groups membership information from LDAP server.
 3.3) Zabbix compares groups received in 3.2) to internal mappings created in 2) and compiles a list of internal Zabbix User Groups.
